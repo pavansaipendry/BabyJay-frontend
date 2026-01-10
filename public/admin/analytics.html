@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabyJay Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+            padding: 24px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .admin-key-form {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .admin-key-form input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            width: 200px;
+        }
+        
+        .admin-key-form button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .admin-key-form button:hover {
+            background: #2563eb;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        
+        .stat-value.positive { color: #10b981; }
+        .stat-value.negative { color: #ef4444; }
+        .stat-value.neutral { color: #3b82f6; }
+        
+        .stat-change {
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .query-text {
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.up { background: #d1fae5; color: #059669; }
+        .badge.down { background: #fee2e2; color: #dc2626; }
+        
+        .chart-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 20px 0;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .bar {
+            width: 100%;
+            max-width: 40px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s;
+        }
+        
+        .bar.up { background: #10b981; }
+        .bar.down { background: #ef4444; }
+        
+        .chart-label {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .refresh-btn {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .refresh-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .last-updated {
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐦 BabyJay Analytics</h1>
+            <div class="admin-key-form">
+                <input type="password" id="adminKey" placeholder="Admin Key" value="">
+                <button onclick="loadDashboard()">Load</button>
+                <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+            </div>
+        </header>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="loading" class="loading">
+            Enter your admin key and click Load to view analytics.
+        </div>
+        
+        <div id="dashboard" style="display: none;">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Feedback</div>
+                    <div class="stat-value neutral" id="totalFeedback">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Thumbs Up 👍</div>
+                    <div class="stat-value positive" id="thumbsUp">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Thumbs Down 👎</div>
+                    <div class="stat-value negative" id="thumbsDown">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Approval Rate</div>
+                    <div class="stat-value" id="approvalRate">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Today's Feedback</div>
+                    <div class="stat-value neutral" id="todayCount">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">This Week</div>
+                    <div class="stat-value neutral" id="weekCount">-</div>
+                </div>
+            </div>
+            
+            <!-- Chart -->
+            <div class="card">
+                <h2>📊 Last 7 Days</h2>
+                <div class="chart-container" id="chart">
+                    <!-- Bars will be inserted here -->
+                </div>
+            </div>
+            
+            <!-- Problem Queries -->
+            <div class="card">
+                <h2>⚠️ Top Problem Queries (Most Downvoted)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Query</th>
+                            <th>Downvotes</th>
+                            <th>Example Response</th>
+                        </tr>
+                    </thead>
+                    <tbody id="problemQueries">
+                        <!-- Rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Recent Feedback -->
+            <div class="card">
+                <h2>📝 Recent Feedback</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Query</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentFeedback">
+                        <!-- Rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="last-updated">
+                Last updated: <span id="lastUpdated">-</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        const API_BASE = ''; // Set to your API URL if different
+        
+        async function loadDashboard() {
+            const adminKey = document.getElementById('adminKey').value;
+            const loading = document.getElementById('loading');
+            const dashboard = document.getElementById('dashboard');
+            const error = document.getElementById('error');
+            
+            if (!adminKey) {
+                showError('Please enter your admin key');
+                return;
+            }
+            
+            loading.textContent = 'Loading...';
+            loading.style.display = 'block';
+            dashboard.style.display = 'none';
+            error.style.display = 'none';
+            
+            try {
+                // Load stats
+                const statsRes = await fetch(`${API_BASE}/api/feedback/stats?admin_key=${adminKey}`);
+                if (!statsRes.ok) {
+                    throw new Error('Invalid admin key or server error');
+                }
+                const stats = await statsRes.json();
+                
+                // Load recent feedback
+                const feedbackRes = await fetch(`${API_BASE}/api/feedback/export?admin_key=${adminKey}&limit=20`);
+                const feedbackData = await feedbackRes.json();
+                
+                // Update UI
+                updateStats(stats);
+                updateChart(stats.feedback_by_day);
+                updateProblemQueries(stats.top_negative_queries);
+                updateRecentFeedback(feedbackData.feedback);
+                
+                loading.style.display = 'none';
+                dashboard.style.display = 'block';
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+                
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+        
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function updateStats(stats) {
+            document.getElementById('totalFeedback').textContent = stats.total_feedback;
+            document.getElementById('thumbsUp').textContent = stats.thumbs_up;
+            document.getElementById('thumbsDown').textContent = stats.thumbs_down;
+            document.getElementById('approvalRate').textContent = stats.approval_rate + '%';
+            document.getElementById('todayCount').textContent = stats.today_count;
+            document.getElementById('weekCount').textContent = stats.this_week_count;
+            
+            // Color the approval rate
+            const approvalEl = document.getElementById('approvalRate');
+            if (stats.approval_rate >= 80) {
+                approvalEl.className = 'stat-value positive';
+            } else if (stats.approval_rate >= 60) {
+                approvalEl.className = 'stat-value neutral';
+            } else {
+                approvalEl.className = 'stat-value negative';
+            }
+        }
+        
+        function updateChart(data) {
+            const container = document.getElementById('chart');
+            container.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="loading">No data yet</div>';
+                return;
+            }
+            
+            // Find max for scaling
+            const maxTotal = Math.max(...data.map(d => d.total)) || 1;
+            
+            // Reverse to show oldest first
+            const reversedData = [...data].reverse();
+            
+            reversedData.forEach(day => {
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                
+                const upHeight = (day.thumbs_up / maxTotal) * 150;
+                const downHeight = (day.thumbs_down / maxTotal) * 150;
+                
+                bar.innerHTML = `
+                    <div class="bar up" style="height: ${upHeight}px" title="${day.thumbs_up} thumbs up"></div>
+                    <div class="bar down" style="height: ${downHeight}px" title="${day.thumbs_down} thumbs down"></div>
+                    <div class="chart-label">${formatDate(day.date)}</div>
+                `;
+                
+                container.appendChild(bar);
+            });
+        }
+        
+        function updateProblemQueries(queries) {
+            const tbody = document.getElementById('problemQueries');
+            tbody.innerHTML = '';
+            
+            if (!queries || queries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No problem queries yet! 🎉</td></tr>';
+                return;
+            }
+            
+            queries.forEach(q => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="query-text">${escapeHtml(q.query)}</td>
+                    <td><span class="badge down">${q.count} 👎</span></td>
+                    <td class="query-text">${escapeHtml(q.example_response || '-')}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateRecentFeedback(feedback) {
+            const tbody = document.getElementById('recentFeedback');
+            tbody.innerHTML = '';
+            
+            if (!feedback || feedback.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No feedback yet</td></tr>';
+                return;
+            }
+            
+            feedback.slice(0, 20).forEach(f => {
+                const row = document.createElement('tr');
+                const time = new Date(f.created_at).toLocaleString();
+                const badge = f.rating === 'up' ? 
+                    '<span class="badge up">👍</span>' : 
+                    '<span class="badge down">👎</span>';
+                
+                row.innerHTML = `
+                    <td>${time}</td>
+                    <td class="query-text">${escapeHtml(f.query)}</td>
+                    <td>${badge}</td>
+                    <td>${escapeHtml(f.feedback_text || '-')}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .slice(0, 200);
+        }
+        
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            if (document.getElementById('dashboard').style.display !== 'none') {
+                loadDashboard();
+            }
+        }, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
