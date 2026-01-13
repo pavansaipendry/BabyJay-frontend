@@ -8,7 +8,8 @@ export default function Sidebar({
   currentConversationId, 
   onSelectConversation, 
   onNewChat,
-  refreshTrigger 
+  refreshTrigger,
+  onClose 
 }) {
   const { session, signOut, user } = useAuth()
   const [conversations, setConversations] = useState([])
@@ -134,18 +135,21 @@ export default function Sidebar({
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <div className="logo">
-          <span className="logo-icon">🐦</span>
-          <span>BabyJay</span>
-        </div>
-        <button className="new-chat-btn" onClick={onNewChat}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          New Chat
-        </button>
+    <div className="logo-row">
+      <div className="logo">
+        <span className="logo-icon">🐦</span>
+        <span>BabyJay</span>
       </div>
+      <button className="sidebar-close" onClick={onClose}>✕</button>
+    </div>
+    <button className="new-chat-btn" onClick={onNewChat}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      New Chat
+    </button>
+</div>
 
       <div className="conversations-list">
         {session ? (

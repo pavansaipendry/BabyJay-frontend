@@ -110,21 +110,24 @@ function AppContent() {
 
   return (
     <div className={`app ${sidebarOpen ? '' : 'sidebar-closed'}`}>
-      {/* Mobile menu toggle */}
-      <button 
-        className="menu-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? '✕' : '☰'}
-      </button>
+    {/* Menu toggle - only show when sidebar is closed */}
+      {!sidebarOpen && (
+        <button 
+          className="menu-toggle"
+          onClick={() => setSidebarOpen(true)}
+        >
+          ☰
+        </button>
+    )}
 
       {/* Sidebar */}
       <Sidebar
-        currentConversationId={currentConversationId}
-        onSelectConversation={handleSelectConversation}
-        onNewChat={handleNewChat}
-        refreshTrigger={refreshTrigger}
-      />
+      currentConversationId={currentConversationId}
+      onSelectConversation={handleSelectConversation}
+      onNewChat={handleNewChat}
+      refreshTrigger={refreshTrigger}
+      onClose={() => setSidebarOpen(false)}
+    />
 
       {/* Main chat area */}
       <main className="main-content">
