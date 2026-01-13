@@ -15,7 +15,7 @@ function AppContent() {
   const [currentConversationId, setCurrentConversationId] = useState(null)
   const [currentMessages, setCurrentMessages] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768)
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -70,6 +70,10 @@ function AppContent() {
   const handleSelectConversation = async (conversationId) => {
     setCurrentConversationId(conversationId)
     await loadConversation(conversationId)
+    // Close sidebar on mobile after selecting
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false)
+    }
   }
 
   // Handle new chat / back to home
