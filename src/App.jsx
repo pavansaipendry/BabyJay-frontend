@@ -173,7 +173,8 @@ function AppContent() {
 
         {/* Chat component */}
         <Chat
-          key={currentConversationId || 'new'}
+          // key={currentConversationId || 'new'}
+          key = "chat"
           conversationId={currentConversationId}
           onNewConversation={handleNewConversation}
           onConversationUpdate={handleConversationUpdate}
