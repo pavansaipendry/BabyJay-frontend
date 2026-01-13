@@ -222,7 +222,7 @@ export default function Chat({
         {messages.length === 0 && !loading && (
           <div className="welcome">
             <div className="welcome-icon">
-              <span className="jayhawk-emoji">🐦</span>
+              <span className="jayhawk-emoji"></span>
             </div>
             <h2>Hey {getUserFirstName()}! How can I help you today?</h2>
             <p className="welcome-subtitle">I'm BabyJay, your KU campus assistant</p>
