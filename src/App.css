@@ -896,7 +896,7 @@ body {
 }
 
 .form-group label {
-  display: block;
+  display: flex;
   font-size: 14px;
   color: var(--text-secondary);
   margin-bottom: 6px;
@@ -1109,7 +1109,7 @@ body {
     margin: 16px;
     max-width: calc(100% - 32px);
   }
-  
+
   .top-bar .sign-in-btn {
     position: fixed;
     top: 12px;
