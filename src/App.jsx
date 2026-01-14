@@ -111,14 +111,17 @@ function AppContent() {
   return (
     <div className={`app ${sidebarOpen ? '' : 'sidebar-closed'}`}>
     {/* Menu toggle - only show when sidebar is closed */}
-      {!sidebarOpen && (
-        <button 
-          className="menu-toggle"
-          onClick={() => setSidebarOpen(true)}
-        >
-          ☰
-        </button>
-    )}
+    {!sidebarOpen && (
+    <button 
+      className="menu-toggle"
+      onClick={() => setSidebarOpen(true)}
+      aria-label="Open menu"
+    >
+      <span className="hamburger-line"></span>
+      <span className="hamburger-line"></span>
+      <span className="hamburger-line"></span>
+    </button>
+  )}
 
       {/* Sidebar */}
       <Sidebar
