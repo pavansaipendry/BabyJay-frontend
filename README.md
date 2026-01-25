@@ -1,2 +1,2 @@
-Hello! To use the bot. Visit 
-https://babyjay.bot
+Hello! To use the bot. 
+- Visit https://babyjay.bot
