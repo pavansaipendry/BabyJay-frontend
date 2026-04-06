@@ -40,6 +40,10 @@ export default function Chat({
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
   const abortControllerRef = useRef(null)
+  // Tracks conversation IDs that Chat itself created (on first send).
+  // When App echoes those IDs back as a prop, we ignore them so we don't
+  // wipe the just-sent messages back to the welcome screen.
+  const selfCreatedIdRef = useRef(null)
 
   // Get user's first name
   const getUserFirstName = () => {
@@ -55,8 +59,18 @@ export default function Chat({
     return 'there'
   }
 
-  // Update messages when conversation changes
+  // Update messages when the user switches conversation from the sidebar
+  // (or clicks "New Chat"). IMPORTANT: ignore the case where the
+  // conversationId prop change is just an echo of an ID Chat itself just
+  // created during sendMessage — otherwise we'd wipe the freshly-sent
+  // messages back to the empty welcome screen on the first message.
   useEffect(() => {
+    if (conversationId && conversationId === selfCreatedIdRef.current) {
+      // This prop update is the round-trip from our own onNewConversation
+      // callback — App just learned about the ID we created. Don't touch
+      // our internal messages state.
+      return
+    }
     setMessages(initialMessages)
     setCurrentConversationId(conversationId)
     if (initialMessages.length === 0) {
@@ -182,8 +196,10 @@ export default function Chat({
       // Add completed message
       setMessages(prev => [...prev, { role: 'assistant', content: botResponse }])
 
-      // Update conversation ID if new
+      // Update conversation ID if new. Mark it as "self-created" so the
+      // prop echo from App doesn't trigger a reset in the useEffect above.
       if (conversation_id && !currentConversationId) {
+        selfCreatedIdRef.current = conversation_id
         setCurrentConversationId(conversation_id)
         if (onNewConversation) {
           onNewConversation({ id: conversation_id, title })

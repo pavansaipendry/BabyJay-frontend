@@ -1283,3 +1283,15 @@ body {
   color: var(--text-secondary, #9ca3af);
   font-size: 12px;
 }
+
+/* Post-submit screen on the login gate (after "Send sign-in link") */
+.sent-screen {
+  text-align: center;
+}
+
+.sent-body {
+  margin: 0 0 16px;
+  color: var(--text-secondary, #9ca3af);
+  font-size: 14px;
+  line-height: 1.55;
+}

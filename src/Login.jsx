@@ -4,27 +4,29 @@ import { useAuth } from './AuthContext'
 /**
  * Login — full-screen entry gate.
  *
- * Two-step email OTP:
- *   1. enter email → "Send code"   (calls sendOtp from AuthContext)
- *   2. enter 6-digit code → "Verify"   (calls verifyOtp)
+ * Magic-link flow (Supabase default template):
+ *   1. user enters email → "Send sign-in link"
+ *   2. Supabase emails them a sign-in link
+ *   3. user clicks the "Log In" button in the email
+ *   4. Supabase authenticates them; AuthContext's onAuthStateChange fires
+ *      and this component unmounts automatically
+ *
+ * We intentionally do NOT render a code-entry step because the default
+ * Supabase email template embeds a link, not a 6-digit code.
  *
  * Third option: "Continue as guest" — sets the guest flag so the user can
  * chat without signing in. Guest chats are not saved.
- *
- * Note: this is a plain JSX component using existing classes from App.css.
- * Visual polish is deferred per user request.
  */
 export default function Login() {
-  const { sendOtp, verifyOtp, continueAsGuest } = useAuth()
+  const { sendOtp, continueAsGuest } = useAuth()
 
-  const [step, setStep] = useState('email') // 'email' | 'code'
+  const [step, setStep] = useState('email') // 'email' | 'sent'
   const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
 
-  const handleSendCode = async (e) => {
+  const handleSendLink = async (e) => {
     e.preventDefault()
     setError('')
     setMessage('')
@@ -36,31 +38,9 @@ export default function Login() {
     try {
       const { error } = await sendOtp(email.trim())
       if (error) throw error
-      setMessage(`We sent a 6-digit code to ${email}. Check your inbox.`)
-      setStep('code')
+      setStep('sent')
     } catch (err) {
-      setError(err?.message || 'Failed to send code. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleVerifyCode = async (e) => {
-    e.preventDefault()
-    setError('')
-    setMessage('')
-    if (code.length !== 6) {
-      setError('Please enter the full 6-digit code.')
-      return
-    }
-    setLoading(true)
-    try {
-      const { error } = await verifyOtp(email.trim(), code)
-      if (error) throw error
-      // AuthContext's onAuthStateChange will flip session and unmount this
-      // component; no further work needed here.
-    } catch (err) {
-      setError(err?.message || 'Invalid or expired code. Try again.')
+      setError(err?.message || 'Failed to send sign-in link. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -73,9 +53,9 @@ export default function Login() {
     try {
       const { error } = await sendOtp(email.trim())
       if (error) throw error
-      setMessage('New code sent. Check your email.')
+      setMessage('Sign-in link sent again. Check your inbox.')
     } catch (err) {
-      setError(err?.message || 'Failed to resend code.')
+      setError(err?.message || 'Failed to resend link.')
     } finally {
       setLoading(false)
     }
@@ -83,7 +63,6 @@ export default function Login() {
 
   const backToEmail = () => {
     setStep('email')
-    setCode('')
     setError('')
     setMessage('')
   }
@@ -96,7 +75,7 @@ export default function Login() {
           <p className="login-subtitle">
             {step === 'email'
               ? 'Sign in with your email to save your chat history.'
-              : 'Enter the 6-digit code we sent you.'}
+              : 'Check your email to finish signing in.'}
           </p>
         </div>
 
@@ -104,7 +83,7 @@ export default function Login() {
         {message && <div className="modal-success">{message}</div>}
 
         {step === 'email' ? (
-          <form onSubmit={handleSendCode}>
+          <form onSubmit={handleSendLink}>
             <div className="form-group">
               <label>Email</label>
               <input
@@ -122,34 +101,16 @@ export default function Login() {
               className="modal-submit-btn"
               disabled={loading || !email.trim()}
             >
-              {loading ? 'Sending…' : 'Send code'}
+              {loading ? 'Sending…' : 'Send sign-in link'}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerifyCode}>
-            <div className="form-group">
-              <label>6-digit code</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={code}
-                onChange={(e) =>
-                  setCode(e.target.value.replace(/\D/g, '').slice(0, 6))
-                }
-                placeholder="••••••"
-                className="otp-input"
-                maxLength={6}
-                autoFocus
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="modal-submit-btn"
-              disabled={loading || code.length !== 6}
-            >
-              {loading ? 'Verifying…' : 'Verify & sign in'}
-            </button>
+          <div className="sent-screen">
+            <p className="sent-body">
+              We sent a sign-in email to <strong>{email}</strong>.<br />
+              Open it and click the <strong>Log In</strong> button to finish
+              signing in. You can close this tab — you'll come right back here.
+            </p>
 
             <div className="resend-section">
               <span>Didn't get it? </span>
@@ -171,7 +132,7 @@ export default function Login() {
                 Use a different email
               </button>
             </div>
-          </form>
+          </div>
         )}
 
         <div className="login-divider">or</div>
