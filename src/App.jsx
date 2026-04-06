@@ -9,8 +9,7 @@ import './App.css'
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 function AppContent() {
-  const { session, user, loading: authLoading } = useAuth()
-  const [showLogin, setShowLogin] = useState(false)
+  const { session, user, loading: authLoading, isGuest, exitGuestMode, signOut } = useAuth()
   const [showSettings, setShowSettings] = useState(false)
   const [currentConversationId, setCurrentConversationId] = useState(null)
   const [currentMessages, setCurrentMessages] = useState([])
@@ -108,11 +107,19 @@ function AppContent() {
     )
   }
 
+  // Gate: no session and not in guest mode → show the Login screen.
+  if (!session && !isGuest) {
+    return <Login />
+  }
+
+  // Guest mode has no sidebar and no persistent conversations.
+  const showSidebar = !!session
+
   return (
-    <div className={`app ${sidebarOpen ? '' : 'sidebar-closed'}`}>
-    {/* Menu toggle - only show when sidebar is closed */}
-    {!sidebarOpen && (
-    <button 
+    <div className={`app ${showSidebar && sidebarOpen ? '' : 'sidebar-closed'}`}>
+    {/* Menu toggle — only applies when the sidebar exists and is closed */}
+    {showSidebar && !sidebarOpen && (
+    <button
       className="menu-toggle"
       onClick={() => setSidebarOpen(true)}
       aria-label="Open menu"
@@ -123,14 +130,16 @@ function AppContent() {
     </button>
   )}
 
-      {/* Sidebar */}
-      <Sidebar
-      currentConversationId={currentConversationId}
-      onSelectConversation={handleSelectConversation}
-      onNewChat={handleNewChat}
-      refreshTrigger={refreshTrigger}
-      onClose={() => setSidebarOpen(false)}
-    />
+      {/* Sidebar — hidden entirely in guest mode */}
+      {showSidebar && (
+        <Sidebar
+          currentConversationId={currentConversationId}
+          onSelectConversation={handleSelectConversation}
+          onNewChat={handleNewChat}
+          refreshTrigger={refreshTrigger}
+          onClose={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* Main chat area */}
       <main className="main-content">
@@ -139,7 +148,7 @@ function AppContent() {
           <div className="top-bar-left">
             {/* Back/Home button - only show when in a conversation */}
             {isInConversation && (
-              <button 
+              <button
                 className="home-btn"
                 onClick={handleNewChat}
                 title="New Chat"
@@ -150,12 +159,12 @@ function AppContent() {
                 </svg>
               </button>
             )}
-            
-            {!session && (
+
+            {isGuest && !session && (
               <>
-                <span className="auth-prompt">Sign in to save your chat history</span>
-                <button className="sign-in-btn" onClick={() => setShowLogin(true)}>
-                  Sign In
+                <span className="auth-prompt">Guest mode — chats are not saved</span>
+                <button className="sign-in-btn" onClick={exitGuestMode}>
+                  Sign in
                 </button>
               </>
             )}
@@ -187,9 +196,6 @@ function AppContent() {
           initialMessages={currentMessages}
         />
       </main>
-
-      {/* Login modal */}
-      {showLogin && <Login onClose={() => setShowLogin(false)} />}
 
       {/* Settings modal */}
       {showSettings && (

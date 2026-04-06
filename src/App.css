@@ -1182,3 +1182,92 @@ body {
   color: var(--text-primary);
 }
 
+
+/* ==================== LOGIN GATE (email OTP + guest) ==================== */
+/* Minimal functional styling — visual polish is deferred. Reuses existing
+   form-group / modal-submit-btn / modal-error / modal-success / otp-input /
+   resend-section / resend-btn classes already defined in this stylesheet. */
+
+.login-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg-primary, #0f1115);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
+  background: var(--bg-secondary, #1a1d23);
+  border: 1px solid var(--border-color, #2a2e36);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  color: var(--text-primary, #f5f5f5);
+}
+
+.login-subtitle {
+  margin: 0;
+  color: var(--text-secondary, #9ca3af);
+  font-size: 14px;
+}
+
+.login-divider {
+  text-align: center;
+  color: var(--text-secondary, #9ca3af);
+  font-size: 12px;
+  margin: 20px 0 12px;
+  position: relative;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: var(--border-color, #2a2e36);
+}
+.login-divider::before { left: 0; }
+.login-divider::after  { right: 0; }
+
+.guest-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  color: var(--text-primary, #f5f5f5);
+  border: 1px solid var(--border-color, #2a2e36);
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.guest-btn:hover:not(:disabled) {
+  background: var(--bg-hover, #252932);
+}
+
+.guest-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.guest-note {
+  margin: 10px 0 0;
+  text-align: center;
+  color: var(--text-secondary, #9ca3af);
+  font-size: 12px;
+}
