@@ -1189,12 +1189,24 @@ body {
    resend-section / resend-btn classes already defined in this stylesheet. */
 
 .login-gate {
-  min-height: 100vh;
+  /* Cover the full viewport and center regardless of ancestor flex
+     constraints. Vite's default index.css sets body to
+       display: flex; place-items: center;
+     with no justify-content, which squishes normally-centered children
+     to the left. Using position: fixed + inset: 0 makes .login-gate
+     ignore that ancestor flex layout entirely. */
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  box-sizing: border-box;
   background: var(--bg-primary, #0f1115);
+  overflow-y: auto;
+  z-index: 100;
 }
 
 .login-card {
