@@ -23,6 +23,44 @@ const getRandomQuestions = () => {
   return shuffled.slice(0, 4)
 }
 
+/**
+ * Split a chunk of text on URLs and render each URL as a clickable anchor.
+ * Used for assistant replies which may include a "Sources:" footer with
+ * raw URLs that browsers won't auto-linkify otherwise.
+ *
+ * Matches http(s):// URLs up to a whitespace / closing paren / closing
+ * bracket / trailing punctuation. Strips trailing `.,;)!?` so the period
+ * at the end of a sentence doesn't get swallowed into the href.
+ */
+const URL_RE = /(https?:\/\/[^\s<>()[\]"']+)/g
+const linkifyText = (text) => {
+  if (!text) return text
+  const parts = text.split(URL_RE)
+  return parts.map((part, i) => {
+    if (i % 2 === 1) {
+      // Strip trailing punctuation from the href so a period at EOS stays
+      // as part of the surrounding text.
+      const match = part.match(/^(.*?)([.,;:!?)\]]*)$/)
+      const href = match ? match[1] : part
+      const trailing = match ? match[2] : ''
+      return (
+        <span key={i}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="msg-link"
+          >
+            {href}
+          </a>
+          {trailing}
+        </span>
+      )
+    }
+    return <span key={i}>{part}</span>
+  })
+}
+
 export default function Chat({ 
   conversationId, 
   onNewConversation, 
@@ -264,7 +302,7 @@ export default function Chat({
             </div>
             <div className="message-wrapper">
               <div className="message-content">
-                {msg.content}
+                {msg.role === 'assistant' ? linkifyText(msg.content) : msg.content}
               </div>
               
               {/* Feedback buttons - only show on hover */}
@@ -308,7 +346,7 @@ export default function Chat({
             <div className="message-avatar">🐦</div>
             <div className="message-wrapper">
               <div className="message-content">
-                {streamingText}
+                {linkifyText(streamingText)}
                 <span className="cursor-blink">|</span>
               </div>
             </div>

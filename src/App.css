@@ -1295,3 +1295,14 @@ body {
   font-size: 14px;
   line-height: 1.55;
 }
+
+/* Clickable URLs inside assistant messages (Sources: footer etc.) */
+.msg-link {
+  color: #6ba6ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+.msg-link:hover {
+  color: #a0c4ff;
+}
