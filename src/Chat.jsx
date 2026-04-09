@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from './AuthContext'
 import axios from 'axios'
+import ReactMarkdown from 'react-markdown'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -302,7 +303,17 @@ export default function Chat({
             </div>
             <div className="message-wrapper">
               <div className="message-content">
-                {msg.role === 'assistant' ? linkifyText(msg.content) : msg.content}
+                {msg.role === 'assistant' ? (
+                  <ReactMarkdown
+                    components={{
+                      a: ({ href, children }) => (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="msg-link">{children}</a>
+                      ),
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : msg.content}
               </div>
               
               {/* Feedback buttons - only show on hover */}
@@ -346,7 +357,15 @@ export default function Chat({
             <div className="message-avatar">🐦</div>
             <div className="message-wrapper">
               <div className="message-content">
-                {linkifyText(streamingText)}
+                <ReactMarkdown
+                  components={{
+                    a: ({ href, children }) => (
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="msg-link">{children}</a>
+                    ),
+                  }}
+                >
+                  {streamingText}
+                </ReactMarkdown>
                 <span className="cursor-blink">|</span>
               </div>
             </div>
@@ -355,8 +374,7 @@ export default function Chat({
 
         {/* Loading indicator */}
         {loading && !isStreaming && (
-          <div className="message assistant">
-            <div className="message-avatar">🐦</div>
+          <div className="loading-indicator-center">
             <div className="message-content loading">
               <span className="dot"></span>
               <span className="dot"></span>

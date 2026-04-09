@@ -653,6 +653,30 @@ body {
   border-radius: 18px 18px 18px 4px;
 }
 
+/* Markdown inside assistant messages */
+.message.assistant .message-content p {
+  margin: 0 0 8px 0;
+}
+.message.assistant .message-content p:last-child {
+  margin-bottom: 0;
+}
+.message.assistant .message-content ul,
+.message.assistant .message-content ol {
+  margin: 4px 0 8px 0;
+  padding-left: 20px;
+}
+.message.assistant .message-content li {
+  margin-bottom: 4px;
+}
+.message.assistant .message-content strong {
+  font-weight: 600;
+}
+.message.assistant .message-content a.msg-link {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  word-break: break-all;
+}
+
 /* Streaming Cursor */
 .cursor-blink {
   animation: blink 1s step-end infinite;
@@ -662,6 +686,13 @@ body {
 
 @keyframes blink {
   50% { opacity: 0; }
+}
+
+/* Loading indicator centered */
+.loading-indicator-center {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
 }
 
 /* Loading dots */
