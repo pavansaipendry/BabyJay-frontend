@@ -72,6 +72,7 @@ export default function Chat({
   const [messages, setMessages] = useState(initialMessages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const inputRef = useRef(null)
   const [currentConversationId, setCurrentConversationId] = useState(conversationId)
   const [suggestedQuestions, setSuggestedQuestions] = useState(getRandomQuestions())
   const [streamingText, setStreamingText] = useState('')
@@ -263,6 +264,7 @@ export default function Chat({
       setLoading(false)
       setIsStreaming(false)
       abortControllerRef.current = null
+      setTimeout(() => inputRef.current?.focus(), 50)
     }
   }
 
@@ -389,11 +391,13 @@ export default function Chat({
       {/* Input */}
       <form className="chat-input" onSubmit={sendMessage}>
         <input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything about KU..."
           disabled={loading}
+          autoFocus
         />
         {loading ? (
           <button type="button" className="stop-btn" onClick={stopGeneration} title="Stop">
