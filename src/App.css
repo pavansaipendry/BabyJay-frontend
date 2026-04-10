@@ -1331,9 +1331,11 @@ body {
 .msg-link {
   color: #6ba6ff;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
   word-break: break-all;
+  cursor: pointer;
 }
 .msg-link:hover {
   color: #a0c4ff;
+  text-decoration-thickness: 2px;
 }

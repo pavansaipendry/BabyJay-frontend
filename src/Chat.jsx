@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from './AuthContext'
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -307,6 +308,7 @@ export default function Chat({
               <div className="message-content">
                 {msg.role === 'assistant' ? (
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       a: ({ href, children }) => (
                         <a href={href} target="_blank" rel="noopener noreferrer" className="msg-link">{children}</a>
